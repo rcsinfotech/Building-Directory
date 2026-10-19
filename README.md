@@ -93,7 +93,7 @@ To roll back: `git log --oneline`, then `git checkout <commit>` and
    ```
    cd ~/<app folder>
    git init -q -b main
-   git remote add origin git@github-directory:rcsinfotech/building-directory.git
+   git remote add origin git@github-directory:rcsinfotech/Building-Directory.git
    git fetch origin
    git checkout -f -B main origin/main
    ```
