@@ -1,0 +1,175 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+  background-color: #f5f5f5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* HEADER SECTION */
+header {
+  background-color: #1a5276;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  flex: 0 0 25%; /* Increased from 20% to 25% */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Building name/welcome message */
+h1 {
+  font-size: 60px; /* Significantly larger */
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+/* Building image container */
+.building-image {
+  width: 100%;
+  height: 250px; /* Much taller - was 150px */
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+}
+
+.building-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.placeholder {
+  background-color: #2980b9;
+  height: 100%;
+  line-height: 250px; /* Match the container height */
+  text-align: center;
+  border-radius: 5px;
+  font-size: 32px; /* Larger text */
+}
+
+/* DIRECTORY SECTION */
+main.directory {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* Directory heading */
+h2 {
+  font-size: 52px; /* Much larger */
+  border-bottom: 3px solid #1a5276;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.tenant-list {
+  list-style: none;
+}
+
+.tenant {
+  padding: 12px 20px; /* More padding */
+  margin-bottom: 10px; /* More space between items */
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+}
+
+.tenant.empty {
+  color: #777;
+  font-style: italic;
+  font-size: 28px;
+}
+
+/* Suite number */
+.suite {
+  font-weight: bold;
+  min-width: 100px; /* Wider to accommodate larger text */
+  font-size: 32px; /* Much larger */
+}
+
+/* Tenant name */
+.name {
+  font-size: 32px; /* Much larger */
+}
+
+/* INFO SECTION */
+.info-section {
+  background-color: #f0f7fc;
+  padding: 25px;
+  margin: 0 30px 30px 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.info-section h3 {
+  font-size: 40px; /* Much larger */
+  font-weight: normal;
+  margin-bottom: 15px;
+}
+
+.info-content {
+  font-size: 40px; /* Much larger */
+  color: #1a5276;
+/*  line-height: 1.4; */
+}
+
+/* FOOTER SECTION */
+footer {
+  background-color: #1a5276;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  flex: 0 0 15%;
+}
+
+.widget {
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.clock-container {
+  margin-bottom: 15px;
+}
+
+#live-clock {
+  font-size: 68px; /* Much larger */
+  font-weight: bold;
+}
+
+#current-date {
+  font-size: 36px; /* Much larger */
+  margin-top: 10px;
+}
+
+.weather-container {
+  margin-top: 20px;
+  width: 100%;
+  /* Add extra space for the widget */
+  min-height: 120px;
+}
+
+/* Make sure the weather widget is visible */
+#ww_aebfcc247efab {
+  width: 100% !important;
+  background-color: transparent !important;
+}

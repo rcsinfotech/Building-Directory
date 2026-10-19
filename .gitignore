@@ -1,0 +1,15 @@
+# Per-sign data and secrets: never commit
+data/
+certs/
+public/images/
+public/css/site.css
+.env
+
+# Install / OS noise
+node_modules/
+npm-debug.log*
+*.bak
+*.save
+*.old*
+*.tgz
+.DS_Store

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <% if (typeof hasSiteCss !== 'undefined' && hasSiteCss) { %>
+  <link rel="stylesheet" href="/css/site.css">
+  <% } %>
+<!-- Fallback refresh every 5 minutes (300 seconds) -->
+<meta http-equiv="refresh" content="300">
+
+<!-- Add this before the closing </head> tag -->
+<script>
+  // Set up periodic refresh (every 5 minutes)
+  setTimeout(function() {
+    // Reload the page without using cache
+    window.location.reload(true);
+  }, 5 * 60 * 1000);
+</script>
+
+
+<style>
+  <% if (data && data.settings && data.settings.colors) { %>
+    body {
+      color: <%= data.settings.colors.directoryText %>;
+      background-color: <%= data.settings.colors.directoryBackground %>;
+    }
+    
+    header {
+      background-color: <%= data.settings.colors.headerBackground %>;
+      color: <%= data.settings.colors.headerText %>;
+    }
+    
+    h2 {
+      border-bottom-color: <%= data.settings.colors.headerBackground %>;
+    }
+    
+    .tenant {
+      background-color: <%= data.settings.colors.tenantBackground %>;
+    }
+    
+    .info-section {
+      background-color: <%= data.settings.colors.infoBackground %>;
+      color: <%= data.settings.colors.infoText %>;
+    }
+    
+    .info-section h3 {
+      color: <%= data.settings.colors.headerBackground %>;
+    }
+    
+    footer {
+      background-color: <%= data.settings.colors.footerBackground %>;
+      color: <%= data.settings.colors.footerText %>;
+    }
+  <% } %>
+</style>
+
+
+</head>
+<body>
+  <div class="container">
+    <header>
+<div class="building-image">
+  <% if (data && data.settings && data.settings.hasBuildingImage) { %>
+    <img src="/images/building-image.jpg?v=<%= new Date().getTime() %>" alt="Building" class="building-img">
+  <% } else { %>
+    <div class="placeholder">Building Image</div>
+  <% } %>
+</div>
+
+
+      <h1><%= message %></h1>
+    </header>
+    
+    <main class="directory">
+      <h2>Directory</h2>
+      <ul class="tenant-list">
+        <% if (tenants && tenants.length > 0) { %>
+          <% tenants.forEach(tenant => { %>
+            <li class="tenant">
+              <span class="suite"><%= tenant.suite %></span>
+              <span class="name"><%= tenant.name %></span>
+            </li>
+          <% }); %>
+        <% } else { %>
+          <li class="tenant empty">No tenants listed</li>
+        <% } %>
+      </ul>
+    </main>
+    
+    <% if (showInfo && infoSection) { %>
+      <div class="info-section">
+        <h3><%= infoSection.title %></h3>
+        <div class="info-content">
+          <%= infoSection.content %>
+        </div>
+      </div>
+    <% } %>
+    
+<footer>
+  <div class="widget">
+    <div class="clock-container">
+      <div id="live-clock"></div>
+      <div id="current-date"></div>
+    </div>
+
+<div class="weather-container">
+  <div id="ww_aebfcc247efab" v='1.3' loc='id' a='{"t":"responsive","lang":"en","sl_lpl":1,"ids":["wl1438"],"font":"Arial","sl_ics":"one_a","sl_sot":"fahrenheit","cl_bkg":"image","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722"}'>More forecasts: <a href="https://oneweather.org/new_york_city/30_days/" id="ww_aebfcc247efab_u" target="_blank">New York 30 day forecast</a></div>
+  <script async src="https://app3.weatherwidget.org/js/?id=ww_aebfcc247efab"></script>
+</div>
+
+</footer>
+
+<script>
+  // Live clock function
+  function updateClock() {
+    const now = new Date();
+    
+// Update time (12-hour format with AM/PM)
+const hours = now.getHours();
+const minutes = now.getMinutes();
+const seconds = now.getSeconds();
+const ampm = hours >= 12 ? 'PM' : 'AM';
+const displayHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+const timeString = `${displayHours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+document.getElementById('live-clock').textContent = timeString;
+    
+    // Update date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateString = now.toLocaleDateString('en-US', options);
+    document.getElementById('current-date').textContent = dateString;
+  }
+  
+  // Update immediately and then every second
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+
+  </div>
+
+<script>
+  // Auto-fit the tenant list to the space available on screen.
+  // Keeps each site's own styles.css sizes as the 100% baseline, shrinks text
+  // and spacing only as much as needed, and switches to 2-3 columns when a
+  // single column would get too small. Re-runs on load, resize and after the
+  // weather widget settles.
+  (function () {
+    var MIN_SCALE_ONE_COLUMN = 0.75; // below this, try more columns instead
+    var MIN_SCALE = 0.45;            // never shrink text below this
+    var MAX_COLUMNS = 3;
+    var COLUMN_GAP = 20;             // px between columns
+
+    var main = document.querySelector('main.directory');
+    var list = document.querySelector('.tenant-list');
+    if (!main || !list) return;
+    var first = list.querySelector('.tenant:not(.empty)');
+    if (!first) return;
+
+    var tenantCss = getComputedStyle(first);
+    var suiteCss = getComputedStyle(first.querySelector('.suite'));
+    var nameCss = getComputedStyle(first.querySelector('.name'));
+    var base = {
+      padV: parseFloat(tenantCss.paddingTop),
+      padH: parseFloat(tenantCss.paddingLeft),
+      gapV: parseFloat(tenantCss.marginBottom),
+      suiteFont: parseFloat(suiteCss.fontSize),
+      suiteWidth: parseFloat(suiteCss.minWidth) || 0,
+      nameFont: parseFloat(nameCss.fontSize)
+    };
+
+    var styleEl = document.createElement('style');
+    document.head.appendChild(styleEl);
+
+    function px(v) { return Math.round(v * 10) / 10 + 'px'; }
+
+    function apply(cols, s) {
+      styleEl.textContent =
+        '.tenant-list{display:grid;grid-template-columns:repeat(' + cols + ',minmax(0,1fr));column-gap:' + COLUMN_GAP + 'px}' +
+        '.tenant-list .tenant{padding:' + px(base.padV * s) + ' ' + px(base.padH * s) + ';margin-bottom:' + px(base.gapV * s) + '}' +
+        '.tenant-list .suite{font-size:' + px(base.suiteFont * s) + ';min-width:' + px(base.suiteWidth * s) + ';flex:0 0 auto}' +
+        '.tenant-list .name{font-size:' + px(base.nameFont * s) + ';overflow-wrap:anywhere}';
+    }
+
+    function fits() { return main.scrollHeight <= main.clientHeight + 1; }
+
+    // Largest scale in [lo, 1] that fits with this many columns, or 0 if none.
+    function bestScale(cols, lo) {
+      apply(cols, 1);
+      if (fits()) return 1;
+      apply(cols, lo);
+      if (!fits()) return 0;
+      var good = lo, bad = 1;
+      for (var i = 0; i < 10; i++) {
+        var mid = (good + bad) / 2;
+        apply(cols, mid);
+        if (fits()) good = mid; else bad = mid;
+      }
+      return Math.floor(good * 100) / 100;
+    }
+
+    function fit() {
+      var cols = 1, s = bestScale(1, MIN_SCALE_ONE_COLUMN);
+      if (!s) {
+        for (var c = 2; c <= MAX_COLUMNS; c++) {
+          var sc = bestScale(c, MIN_SCALE);
+          if (sc > s + 0.001) { s = sc; cols = c; }
+        }
+      }
+      if (!s) { cols = MAX_COLUMNS; s = MIN_SCALE; } // best effort for very long lists
+      apply(cols, s);
+      list.setAttribute('data-fit', cols + 'col@' + Math.round(s * 100) + '%');
+    }
+
+    fit();
+    window.addEventListener('load', fit);
+    window.addEventListener('resize', fit);
+    setTimeout(fit, 3000);
+  })();
+</script>
+</body>
+</html>

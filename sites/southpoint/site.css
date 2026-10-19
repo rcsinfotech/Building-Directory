@@ -1,0 +1,17 @@
+/* Southpoint sign: style overrides on top of public/css/styles.css.
+   Installed on the sign as public/css/site.css (that path is not tracked by git). */
+
+.tenant {
+  padding: 20px 25px;
+  margin-bottom: 18px;
+}
+
+.info-section h3 {
+  font-size: 48px;
+}
+
+.info-content {
+  font-size: 48px;
+  line-height: 1.4;
+  color: inherit; /* use the Info text color from the admin page */
+}
