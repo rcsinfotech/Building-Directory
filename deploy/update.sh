@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 BRANCH="${BRANCH:-main}"
-SERVICE="${SERVICE:-building-directory}"
+SERVICE="${SERVICE:-directory-app}"
 
 git fetch --quiet origin "$BRANCH"
 LOCAL=$(git rev-parse HEAD)

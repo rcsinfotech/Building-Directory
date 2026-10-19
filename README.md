@@ -6,10 +6,34 @@ colors, building photo and the info box.
 
 Signs in service:
 
-| Sign | Address | Raspberry Pi Connect name |
-|---|---|---|
-| The Arbors | 7400 Baymeadows Way, Jacksonville FL 32256 | Arbor Signage |
-| Southpoint | 4215 Southpoint Blvd, Jacksonville FL 32216 | Southpoint Signage |
+| Sign | Address | Pi Connect name | Hostname | Tunnel | Display URL | SSH hostname |
+|---|---|---|---|---|---|---|
+| The Arbors | 7400 Baymeadows Way, Jacksonville FL 32256 | Arbor Signage | ArborSign | arborsignage-app | arborsign.rcsinfo.org | arborsign-ssh.rcsinfo.org |
+| Southpoint | 4215 Southpoint Blvd, Jacksonville FL 32216 | Southpoint Signage | SothpointSign | southpoint-app | southpoint.rcsinfo.org | southpoint-ssh.rcsinfo.org |
+
+On both signs: login user `user`, app in `/home/user/directory-app`, app service `directory-app`,
+tunnel service `cloudflared` using `/etc/cloudflared/config.yml` (cloudflared binary in
+`/usr/local/bin`, auto-update off).
+
+## SSH from your computer
+
+SSH goes through each sign's Cloudflare tunnel, protected by a Cloudflare Access login. Install
+`cloudflared` on your computer, then add to `~/.ssh/config`
+(Windows: `C:\Users\<you>\.ssh\config`, and use the full path to `cloudflared.exe`):
+
+```
+Host arbor
+  HostName arborsign-ssh.rcsinfo.org
+  User user
+  ProxyCommand cloudflared access ssh --hostname %h
+
+Host southpoint
+  HostName southpoint-ssh.rcsinfo.org
+  User user
+  ProxyCommand cloudflared access ssh --hostname %h
+```
+
+`ssh arbor` opens a browser for the Cloudflare login the first time, then connects.
 
 ## What lives where
 
@@ -64,21 +88,24 @@ On the sign, from the app folder:
 ```
 
 It fetches `main`, fast-forwards, runs `npm ci` only if `package-lock.json` changed, restarts the
-`building-directory` service and prints the log if it fails to come back. It refuses to update if
+`directory-app` service and prints the log if it fails to come back. It refuses to update if
 someone edited tracked files on the sign; put per-sign styling in `public/css/site.css` instead.
 
 To roll back: `git log --oneline`, then `git checkout <commit>` and
-`sudo systemctl restart building-directory`. Return with `git checkout main`.
+`sudo systemctl restart directory-app`. Return with `git checkout main`.
 
-## Setting up a new sign (or converting an existing one)
+## Converting a sign to git (Arbor, Southpoint)
 
-1. **Back up**: `tar czf ~/directory-backup-$(date +%F).tgz -C ~/<app folder> .`
-2. **Deploy key** (read-only access for this sign):
+The signs already run as the `directory-app` service, so no service setup is needed.
+
+1. **Back up**: `tar czf ~/directory-backup-$(date +%F).tgz -C ~/directory-app .`
+2. **Deploy key** (read-only GitHub access for this sign only):
    ```
    ssh-keygen -t ed25519 -N '' -C "$(hostname) directory sign" -f ~/.ssh/directory_deploy
    cat ~/.ssh/directory_deploy.pub
    ```
-   Add the printed key in GitHub, repo **Settings, Deploy keys**, with write access off. Then:
+   Add the printed key in GitHub: repo **Settings, Deploy keys, Add deploy key**, title with
+   the sign name, **Allow write access** left off. Then:
    ```
    cat >> ~/.ssh/config <<'EOF'
    Host github-directory
@@ -91,11 +118,17 @@ To roll back: `git log --oneline`, then `git checkout <commit>` and
    ```
 3. **Turn the app folder into a checkout** (keeps `data/`, `certs/`, `public/images/`):
    ```
-   cd ~/<app folder>
+   cd ~/directory-app
    git init -q -b main
    git remote add origin git@github-directory:rcsinfotech/Building-Directory.git
    git fetch origin
    git checkout -f -B main origin/main
    ```
-   For Southpoint, also: `cp sites/southpoint/site.css public/css/site.css`
-4. **Service**: stop whatever started the app before, then `./deploy/install-service.sh`.
+   Southpoint only: `cp sites/southpoint/site.css public/css/site.css`
+4. **Restart and check**: `sudo systemctl restart directory-app && sleep 2 && systemctl is-active directory-app && git log -1 --oneline`
+
+## Setting up a brand-new sign
+
+Same as above, but clone into `~/directory-app`, run `npm ci --omit=dev`, create
+`data/directory.json` and `data/admin.json` (`{"username":"admin","password":"<temp>"}`, hashed on
+first login), optionally `certs/`, then `./deploy/install-service.sh`.

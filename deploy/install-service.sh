@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time: run the app as a systemd service named building-directory, so it
+# One-time: run the app as a systemd service named directory-app (same name the existing signs use), so it
 # starts on boot, restarts if it crashes, and deploy/update.sh can restart it.
 # Run on the sign from the app folder:  ./deploy/install-service.sh
 # Stop whatever started the app before (pm2, rc.local, crontab @reboot, an
@@ -11,9 +11,9 @@ APP_DIR="$(pwd)"
 NODE_BIN="$(command -v node)"
 RUN_USER="$(id -un)"
 
-sudo tee /etc/systemd/system/building-directory.service >/dev/null <<EOF
+sudo tee /etc/systemd/system/directory-app.service >/dev/null <<EOF
 [Unit]
-Description=Building directory sign
+Description=Directory Display App
 After=network-online.target
 Wants=network-online.target
 
@@ -29,6 +29,6 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now building-directory
+sudo systemctl enable --now directory-app
 sleep 2
-systemctl --no-pager status building-directory | head -12
+systemctl --no-pager status directory-app | head -12
